@@ -32,7 +32,7 @@ export function analyze(root: ShadowRoot | Document = document): void {
   const messageArea = root.querySelector<HTMLElement>("#message-area");
   if (!messageArea) return;
 
-  const wrapper = new Wrapper([new Buttons(), new Inputs()]);
+  const wrapper = new Wrapper([new Inputs(), new Buttons()]);
   const lines = wrapper.scan();
 
   messageArea.innerHTML = highlightLocators(lines);

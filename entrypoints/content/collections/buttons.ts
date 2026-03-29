@@ -17,12 +17,12 @@ export default class Buttons {
       let locator: string | null = null;
       if (dataSelector) {
         locator = `page.locator('[${dataSelector}]')`;
-      } else if (el.className) {
-        locator = `page.locator('.${el.className.trim().split(/\s+/).slice(0, 2).join(".")}')`;
       } else if (el.getAttribute("aria-label")) {
         locator = `page.getByLabel('${el.getAttribute("aria-label")}')`;
       } else if (el.textContent && el.textContent.trim().length > this.minimumValueLength) {
         locator = `page.getByRole('button', { name: '${el.textContent.trim()}' })`;
+      } else if (el.className) {
+        locator = `page.locator('.${el.className.trim().split(/\s+/).slice(0, 2).join(".")}')`;
       }
       if (!locator) return;
 

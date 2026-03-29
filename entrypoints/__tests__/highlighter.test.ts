@@ -37,6 +37,22 @@ describe("highlightLocators", () => {
     expect(code.split("\n")).toHaveLength(2);
   });
 
+  it("highlights getByRole with options object", () => {
+    const result = highlightLocators(["page.getByRole('button', { name: 'Continue' })"]);
+    expect(result).toContain('<span class="hl-object">page</span>');
+    expect(result).toContain('<span class="hl-method">getByRole</span>');
+    expect(result).toContain('<span class="hl-string">&#39;button&#39;</span>');
+    expect(result).toContain('<span class="hl-key"> name: </span>');
+    expect(result).toContain('<span class="hl-string">&#39;Continue&#39;</span>');
+    expect(result).toContain('<span class="hl-brace">{</span>');
+    expect(result).toContain('<span class="hl-brace"> }</span>');
+  });
+
+  it("falls back to hl-plain for getByRole with unrecognized options", () => {
+    const result = highlightLocators(["page.getByRole('button', { exact: true })"]);
+    expect(result).toContain('<span class="hl-plain">');
+  });
+
   it("highlights lines that have trailing whitespace", () => {
     const result = highlightLocators([
       "page.locator('[data-v-2be61601]') ",
