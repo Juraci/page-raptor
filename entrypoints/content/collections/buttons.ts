@@ -1,4 +1,5 @@
 export default class Buttons {
+  private minimumValueLength: number = 3;
   private result: string[];
   private seen: Set<string>;
 
@@ -18,6 +19,8 @@ export default class Buttons {
         locator = `page.locator('button.${el.className.trim().split(/\s+/).slice(0, 2).join(".")}')`;
       } else if (el.getAttribute("aria-label")) {
         locator = `page.getByLabel('${el.getAttribute("aria-label")}')`;
+      } else if (el.textContent && el.textContent.trim().length > this.minimumValueLength) {
+        locator = `page.getByRole('button', { name: '${el.textContent.trim()}' })`;
       }
       if (!locator) return;
 

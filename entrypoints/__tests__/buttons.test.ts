@@ -38,6 +38,11 @@ describe("Buttons", () => {
     expect(buttons.get()).toStrictEqual(["page.locator('button.reset-email')"]);
   });
 
+  it("returns a getByRole locator for a button with text content longer than the minimum length", () => {
+    container.innerHTML = `<button>Submit</button>`;
+    expect(buttons.get()).toStrictEqual(["page.getByRole('button', { name: 'Submit' })"]);
+  });
+
   it("deduplicates buttons that share the same data-test attribute", () => {
     container.innerHTML = `
       <button data-test-btn>First</button>
