@@ -1,5 +1,6 @@
 import { defineContentScript } from "wxt/utils/define-content-script";
 import Buttons from "./collections/buttons";
+import Inputs from "./collections/inputs";
 import Wrapper from "./wrapper";
 import { highlightLocators } from "./highlighter";
 
@@ -31,8 +32,7 @@ export function analyze(root: ShadowRoot | Document = document): void {
   const messageArea = root.querySelector<HTMLElement>("#message-area");
   if (!messageArea) return;
 
-  const buttons = new Buttons();
-  const wrapper = new Wrapper([buttons]);
+  const wrapper = new Wrapper([new Buttons(), new Inputs()]);
   const lines = wrapper.scan();
 
   messageArea.innerHTML = highlightLocators(lines);
