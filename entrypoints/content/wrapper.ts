@@ -14,7 +14,6 @@ export default class Wrapper {
     this.metacollection.forEach((elementCollection) => {
       snippets.push(...elementCollection.get());
     });
-    console.log(`>>>>> snippets: ${JSON.stringify(snippets)}`);
     return snippets;
   }
 }

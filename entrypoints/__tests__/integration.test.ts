@@ -13,6 +13,7 @@ describe("analyzes the page elements and prints the locators", () => {
           <input type="password" name="password" placeholder="Password" />
           <button type="submit" data-test-login-btn>Login</button>
           <button type="button" aria-label="Cancel">Cancel</button>
+          <button type="button" class="reset-email">Forgot Password?</button>
         </form>
       `;
       document.body.appendChild(page);
@@ -30,6 +31,7 @@ describe("analyzes the page elements and prints the locators", () => {
 
       expect(messageArea.textContent).toContain("page.locator('[data-test-login-btn]')");
       expect(messageArea.textContent).toContain("page.getByLabel('Cancel')");
+      expect(messageArea.textContent).toContain("page.locator('button.reset-email')");
 
       expect(panel.shadowRoot!.querySelector("#copy-btn")).not.toBeNull();
     });

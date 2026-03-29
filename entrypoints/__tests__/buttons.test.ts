@@ -25,6 +25,11 @@ describe("Buttons", () => {
     expect(buttons.get()).toStrictEqual(["page.getByLabel('Close')"]);
   });
 
+  it("returns a locator for a button with a class", () => {
+    container.innerHTML = `<button class="reset-email">Forgot Password?</button>`;
+    expect(buttons.get()).toStrictEqual(["page.locator('button.reset-email')"]);
+  });
+
   it("deduplicates buttons that share the same data-test attribute", () => {
     container.innerHTML = `
       <button data-test-btn>First</button>

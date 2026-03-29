@@ -34,7 +34,6 @@ export function analyze(root: ShadowRoot | Document = document): void {
   const buttons = new Buttons();
   const wrapper = new Wrapper([buttons]);
   const lines = wrapper.scan();
-  console.log(`>>>>> lines: ${JSON.stringify(lines)}`);
 
   messageArea.innerHTML = highlightLocators(lines);
 
