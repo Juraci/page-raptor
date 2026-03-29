@@ -37,7 +37,7 @@ describe("Inputs", () => {
 
   it("returns a locator for an input with a type attribute", () => {
     container.innerHTML = `<input type="email" />`;
-    expect(inputs.get()).toStrictEqual(['page.locator(\'input[type="email"]\')']);
+    expect(inputs.get()).toStrictEqual(["page.locator('input[type=\"email\"]')"]);
   });
 
   it("returns a getByPlaceholder locator for an input with a placeholder", () => {
