@@ -1,13 +1,30 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { createSidePanel } from "../content";
+import { mount, VueWrapper } from "@vue/test-utils";
+import SidePanel from "../content/SidePanel.vue";
+
+async function buildPanel(html: string): Promise<{ wrapper: VueWrapper; page: HTMLDivElement }> {
+  const page = document.createElement("div");
+  page.innerHTML = html;
+  document.body.appendChild(page);
+
+  const wrapper = mount(SidePanel, { attachTo: document.body });
+  await wrapper.find("#analyze-btn").trigger("click");
+  await wrapper.vm.$nextTick();
+  return { wrapper, page };
+}
 
 describe("analyzes the page elements and prints the locators", () => {
+  let wrapper: VueWrapper;
   let page: HTMLDivElement;
 
+  afterEach(() => {
+    page.remove();
+    wrapper.unmount();
+  });
+
   describe("when there are unique elements", () => {
-    beforeEach(() => {
-      page = document.createElement("div");
-      page.innerHTML = `
+    beforeEach(async () => {
+      ({ wrapper, page } = await buildPanel(`
         <form>
           <input type="text" name="username" placeholder="Username" />
           <input type="password" name="password" placeholder="Password" />
@@ -16,33 +33,22 @@ describe("analyzes the page elements and prints the locators", () => {
           <button type="button" class="reset-email">Forgot Password?</button>
           <button type="button">Submit</button>
         </form>
-      `;
-      document.body.appendChild(page);
-    });
-
-    afterEach(() => {
-      page.remove();
+      `));
     });
 
     it("returns the detected elements after clicking analyze page", () => {
-      const panel = createSidePanel();
-      panel.shadowRoot!.querySelector<HTMLButtonElement>("#analyze-btn")!.click();
-
-      const messageArea = panel.shadowRoot!.querySelector<HTMLDivElement>("#message-area")!;
-
-      expect(messageArea.textContent).toContain("page.locator('[data-test-login-btn]')");
-      expect(messageArea.textContent).toContain("page.getByLabel('Cancel')");
-      expect(messageArea.textContent).toContain("page.locator('.reset-email')");
-      expect(messageArea.textContent).toContain("page.getByRole('button', { name: 'Submit' })");
-
-      expect(panel.shadowRoot!.querySelector("#copy-btn")).not.toBeNull();
+      const text = wrapper.find("#message-area").text();
+      expect(text).toContain("page.locator('[data-test-login-btn]')");
+      expect(text).toContain("page.getByLabel('Cancel')");
+      expect(text).toContain("page.locator('.reset-email')");
+      expect(text).toContain("page.getByRole('button', { name: 'Submit' })");
+      expect(wrapper.find("#copy-btn").exists()).toBe(true);
     });
   });
 
   describe("when there are inputs and textareas", () => {
-    beforeEach(() => {
-      page = document.createElement("div");
-      page.innerHTML = `
+    beforeEach(async () => {
+      ({ wrapper, page } = await buildPanel(`
         <form>
           <input type="text"     data-test-username    placeholder="Username" />
           <input type="email"    class="email-field"   placeholder="Email"    />
@@ -50,87 +56,55 @@ describe("analyzes the page elements and prints the locators", () => {
           <input type="text"     placeholder="Search"  />
           <textarea class="notes-field">Notes</textarea>
         </form>
-      `;
-      document.body.appendChild(page);
-    });
-
-    afterEach(() => {
-      page.remove();
+      `));
     });
 
     it("returns the detected inputs and textareas after clicking analyze page", () => {
-      const panel = createSidePanel();
-      panel.shadowRoot!.querySelector<HTMLButtonElement>("#analyze-btn")!.click();
-
-      const messageArea = panel.shadowRoot!.querySelector<HTMLDivElement>("#message-area")!;
-
-      expect(messageArea.textContent).toContain("page.locator('[data-test-username]')");
-      expect(messageArea.textContent).toContain("page.locator('.email-field')");
-      expect(messageArea.textContent).toContain("page.getByLabel('Password')");
-      expect(messageArea.textContent).toContain("page.getByPlaceholder('Search')");
-      expect(messageArea.textContent).toContain("page.locator('.notes-field')");
-
-      expect(panel.shadowRoot!.querySelector("#copy-btn")).not.toBeNull();
+      const text = wrapper.find("#message-area").text();
+      expect(text).toContain("page.locator('[data-test-username]')");
+      expect(text).toContain("page.locator('.email-field')");
+      expect(text).toContain("page.getByLabel('Password')");
+      expect(text).toContain("page.getByPlaceholder('Search')");
+      expect(text).toContain("page.locator('.notes-field')");
+      expect(wrapper.find("#copy-btn").exists()).toBe(true);
     });
   });
 
   describe("when there are links", () => {
-    beforeEach(() => {
-      page = document.createElement("div");
-      page.innerHTML = `
+    beforeEach(async () => {
+      ({ wrapper, page } = await buildPanel(`
         <div>
           <a href="#" data-test-home-link>Home</a>
           <a href="#" class="about-link">About</a>
           <a href="#" aria-label="Contact">Contact</a>
           <a href="#">Login</a>
         </div>
-      `;
-      document.body.appendChild(page);
-    });
-
-    afterEach(() => {
-      page.remove();
+      `));
     });
 
     it("returns the detected links after clicking analyze page", () => {
-      const panel = createSidePanel();
-      panel.shadowRoot!.querySelector<HTMLButtonElement>("#analyze-btn")!.click();
-
-      const messageArea = panel.shadowRoot!.querySelector<HTMLDivElement>("#message-area")!;
-
-      expect(messageArea.textContent).toContain("page.locator('[data-test-home-link]')");
-      expect(messageArea.textContent).toContain("page.locator('.about-link')");
-      expect(messageArea.textContent).toContain("page.getByLabel('Contact')");
-      expect(messageArea.textContent).toContain("page.getByRole('link', { name: 'Login' })");
-
-      expect(panel.shadowRoot!.querySelector("#copy-btn")).not.toBeNull();
+      const text = wrapper.find("#message-area").text();
+      expect(text).toContain("page.locator('[data-test-home-link]')");
+      expect(text).toContain("page.locator('.about-link')");
+      expect(text).toContain("page.getByLabel('Contact')");
+      expect(text).toContain("page.getByRole('link', { name: 'Login' })");
+      expect(wrapper.find("#copy-btn").exists()).toBe(true);
     });
   });
 
   describe("when there are multiple elements with the same selector", () => {
-    beforeEach(() => {
-      page = document.createElement("div");
-      page.innerHTML = `
+    beforeEach(async () => {
+      ({ wrapper, page } = await buildPanel(`
         <button data-test-btn>Button</button>
         <button data-test-btn>Button</button>
-      `;
-      document.body.appendChild(page);
-    });
-
-    afterEach(() => {
-      page.remove();
+      `));
     });
 
     it("returns the selector only once after clicking analyze page", () => {
-      const panel = createSidePanel();
-      panel.shadowRoot!.querySelector<HTMLButtonElement>("#analyze-btn")!.click();
-
-      const messageArea = panel.shadowRoot!.querySelector<HTMLDivElement>("#message-area")!;
-
-      expect(messageArea.textContent).toContain("page.locator('[data-test-btn]')");
-      expect(messageArea.textContent).not.toContain(
-        "page.locator('[data-test-btn]')\npage.locator('[data-test-btn]')",
-      );
+      const text = wrapper.find("#message-area").text();
+      expect(text).toContain("page.locator('[data-test-btn]')");
+      const matches = text.match(/page\.locator\('\[data-test-btn\]'\)/g) ?? [];
+      expect(matches).toHaveLength(1);
     });
   });
 });

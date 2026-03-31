@@ -1,8 +1,9 @@
 import { defineConfig } from "vitest/config";
 import { WxtVitest } from "wxt/testing/vitest-plugin";
+import vue from "@vitejs/plugin-vue";
 
 export default defineConfig({
-  plugins: [await WxtVitest()],
+  plugins: [vue(), await WxtVitest()],
   test: {
     environment: "happy-dom",
     include: ["**/__tests__/**/*.test.ts", "**/*.test.ts", "**/*.spec.ts"],
